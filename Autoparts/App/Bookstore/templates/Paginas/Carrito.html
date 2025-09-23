@@ -1,0 +1,140 @@
+{% load static %} 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito</title>
+    
+    <link rel="stylesheet" href="{% static 'css/carrito.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+</head>
+<header>
+  <!-- Modal Logging -->
+  <div class="modal fade" id="LoggingModal" tabindex="-1" aria-labelledby="LoggingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="LoggingModalLabel">Inicio de sesión</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="mb-3">
+              <label for="exampleInputEmail1" class="form-label">Correo electronico</label>
+              <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+            </div>
+            <div class="mb-3">
+              <label for="exampleInputPassword1" class="form-label">Contraseña</label>
+              <input type="password" class="form-control" id="exampleInputPassword1">
+              <div id="emailHelp" class="form-text">No compartas tu contraseña con desconocidos.</div>
+            </div>
+            <button type="submit" class="btn btn-primary" disabled>Enviar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal Logging -->
+  <!-- NavBar inicio -->
+  <nav class="navbar navbar-expand-lg bg-body-tertiary" >
+    <div class="container-fluid" id="nav-color">
+      <a class="navbar-brand" href="{% url 'PaginaInicial' %}">Autoparts</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+              <a class="nav-link" href="{% url 'PaginaInicial' %}">Home</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link disabled" href="#">Sobre nosotros</a>
+          </li>
+        </ul>
+        <button class="btn btn-outline-success" type="submit" data-bs-toggle="modal" data-bs-target="#LoggingModal">Login</button>
+      </div>
+    </div>
+  </nav>
+  
+  <!-- NavBar fin -->
+</header>
+<body>
+  <main>
+    <div class="container mt-5" id="container">
+      <div class="row">
+        <div class="col">
+          <table class="table border border-2 border-dark-subtle border-opacity-50">
+            <thead>
+              <tr>
+                <th scope="col" style="width: 5%;"></th>
+                <th scope="col" style="width: 75%;">Nombre</th>
+                <th scope="col" style="width: 15%;">Precio</th>
+                <th scope="col" style="width: 5%;">Cantidad</th>
+              </tr>
+            </thead>
+            <tbody id="cart-items">
+
+            </tbody>
+            <tfoot>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td>
+                <div class="d-grid gap-2">
+                  <button type="button" class="btn btn-success btn-lg">Confirmar</button>
+                </div>
+              </td>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer>
+
+  </footer>
+  <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+  <script>
+    $(document).ready(function () {
+      const cartId = 1;
+      $.getJSON(
+        "https://km3k8b0p-5000.brs.devtunnels.ms/get_cart",
+        { id: cartId },
+        function (data) {
+          $("#cart-items").empty();
+
+          data.forEach(item => {
+            const html = 
+              `<tr>
+                  <td class="align-middle">
+                    <button type="button" class="btn">
+                      <img
+                        src="../static/img/carrito/cerrar.png"
+                        alt="Eliminar"
+                        data-item=""
+                        class="btn-delete"
+                        style="width: 25px; height: 25px;"
+                      >
+                    </button>
+                  </td>
+                  <td class="align-middle" style="vertical-align: middle;">
+                    <h6>${item.nombre}</h6>
+                  </td>
+                  <td class="align-middle" style="vertical-align: middle;">
+                    ${item.precio.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' })}
+                  </td>
+                  <td class="align-middle" style="vertical-align: middle;">
+                    <h6>${item.cantidad}</h6>
+                  </td>
+                </tr>
+                `;
+            $("#cart-items").append(html);
+          });
+        }
+      );
+    });
+  </script>
+</body>
+</html>

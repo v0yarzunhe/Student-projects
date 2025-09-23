@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Estado de Producto</title>
+    <style>
+        table {
+            width: 50%;
+            margin: 30px auto;
+            border-collapse: collapse;
+        }
+        td, th {
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .stock-bajo {
+            color: red;
+            font-weight: bold;
+        }
+        .stock-ok {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
+</head>
+<body>
+    <h1 style="text-align:center;">Lista productos</h1>
+
+    {% if producto %}
+    {% for item in producto %}
+        <table class="table table-striped table-bordered mb-4 w-50 mx-auto">
+            <tbody>
+                <tr>
+                <th scope="row">Nombre</th>
+                <td>{{ item.nombre }}</td>
+                </tr>
+                <tr>
+                <th scope="row">Precio</th>
+                <td>${{ item.precio }}</td>
+                </tr>
+                <tr>
+                <th scope="row">Stock Actual</th>
+                <td>{{ item.stock_actual }}</td>
+                </tr>
+                <tr>
+                <th scope="row">Stock Mínimo</th>
+                <td>{{ item.stock_minimo }}</td>
+                </tr>
+                <tr>
+                <th scope="row">Estado</th>
+                <td>
+                    {% if item.stock_actual|add:'0' <= item.stock_minimo|add:'0' %}
+                    <span class="badge bg-danger">¡Stock Crítico!</span>
+                    {% else %}
+                    <span class="badge bg-success">Stock Suficiente</span>
+                    {% endif %}
+                </td>
+                </tr>
+                <tr>
+                <td colspan="2" class="text-end">
+                    <div class="d-flex justify-content-end gap-2">
+                    <!-- Quitar -->
+                    <div class="input-group input-group-sm w-auto">
+                        <span class="input-group-text">Quitar</span>
+                        <input
+                        id="remove-{{ item.id_producto }}"
+                        type="number"
+                        min="0"
+                        value="0"
+                        class="form-control"
+                        placeholder="Cant."
+                        >
+                        <button
+                        class="btn btn-outline-danger"
+                        type="button"
+                        onclick="callRemove({{ item.id_producto }})"
+                        >
+                        Remove
+                        </button>
+                    </div>
+
+                    <!-- Agregar -->
+                    <div class="input-group input-group-sm w-auto">
+                        <span class="input-group-text">Agregar</span>
+                        <input
+                        id="add-{{ item.id_producto }}"
+                        type="number"
+                        min="0"
+                        value="0"
+                        class="form-control"
+                        placeholder="Cant."
+                        >
+                        <button
+                        class="btn btn-outline-success"
+                        type="button"
+                        onclick="callAdd({{ item.id_producto }})"
+                        >
+                        Add
+                        </button>
+                    </div>
+                    </div>
+                </td>
+                </tr>
+            </tbody>
+        </table>
+    {% endfor %}
+{% else %}
+    <p style="text-align:center; color:red;">
+        No se pudo obtener el producto.
+    </p>
+{% endif %}
+<script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+<script>
+  function callRemove(id) {
+    const qty = parseInt(document.getElementById(`remove-${id}`).value, 10) || 0;
+    if (qty <= 0) return alert('Ingresa una cantidad válida');
+
+    fetch('http://127.0.0.1:5000/remove', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id: id, amount: qty })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('Status ' + res.status);
+      return res.json();
+    })
+    .then(data => {
+      console.log('Remove response', data);
+      location.reload();
+    })
+    .catch(err => {
+      console.error('Error en remove:', err);
+      alert('Ocurrió un error al quitar stock');
+    });
+  }
+
+  function callAdd(id) {
+    const qty = parseInt(document.getElementById(`add-${id}`).value, 10) || 0;
+    if (qty <= 0) return alert('Ingresa una cantidad válida');
+
+    fetch('http://127.0.0.1:5000/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id: id, amount: qty })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('Status ' + res.status);
+      return res.json();
+    })
+    .then(data => {
+      console.log('Add response', data);
+      location.reload();
+    })
+    .catch(err => {
+      console.error('Error en add:', err);
+      alert('Ocurrió un error al agregar stock');
+    });
+  }
+</script>
+</body>
+</html>
